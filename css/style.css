@@ -28,3 +28,9 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+
+/* 添加 feedback-section 的特定样式 */
+#feedback-section {
+    text-align: left; /* 确保内容左对齐，而不是居中 */
+    margin-top: 20px; /* 添加一些空间，确保与其他部分不重叠 */
+}
