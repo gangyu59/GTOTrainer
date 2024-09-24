@@ -1,9 +1,11 @@
-export function startSimulationMode() {
-    const gameSection = document.getElementById("game-section");
-    const feedbackSection = document.getElementById("feedback-section");
+// 开始模拟模式的占位符函数
+export async function startSimulationMode() {
+    const simulationSection = document.getElementById("simulation-section");
+    simulationSection.innerHTML = "<p>模拟模式即将上线...</p>";
+}
 
-    gameSection.innerHTML = "<p>进行牌局模拟...</p>";
-    feedbackSection.innerHTML = "<p>输入牌局进行模拟...</p>";
-
-    // 此处可以实现用户输入牌局和反馈逻辑
+// 清理模拟模式的内容
+export function clearSimulationMode() {
+    const simulationSection = document.getElementById("simulation-section");
+    simulationSection.innerHTML = "";  // 清空所有动态生成的内容
 }

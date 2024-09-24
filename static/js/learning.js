@@ -1,12 +1,18 @@
 // 动态加载课程数据
 async function loadLesson(lessonNumber) {
-    const response = await fetch(`data/lesson${lessonNumber}.json`);
-    if (!response.ok) {
-        console.error(`无法加载第 ${lessonNumber} 课的内容`);
-        return;
+    try {
+        const response = await fetch(`data/lesson${lessonNumber}.json`);
+        if (!response.ok) {
+            throw new Error(`无法加载第 ${lessonNumber} 课的内容`);
+        }
+
+        const lesson = await response.json();
+
+        // 显示课程内容
+        displayLesson(lesson, lessonNumber);
+    } catch (error) {
+        console.error("加载课程时出错: ", error);
     }
-    const lesson = await response.json();
-    displayLesson(lesson, lessonNumber);
 }
 
 // 显示课程内容，并更新课号显示
@@ -24,13 +30,14 @@ function displayLesson(lesson, lessonNumber) {
     `;
 }
 
-// 创建课程导航
+// 启动学习模块
 export function startLearningMode() {
     const gameSection = document.getElementById("game-section");
     const feedbackSection = document.getElementById("feedback-section");
 
-    gameSection.innerHTML = ""; // 清空游戏部分
-    feedbackSection.innerHTML = ""; // 清空反馈部分
+    // 清空导航相关内容
+    gameSection.innerHTML = ""; 
+    feedbackSection.innerHTML = ""; 
 
     const lessonNav = document.createElement("div");
     lessonNav.id = "lesson-nav";
@@ -75,3 +82,14 @@ export function startLearningMode() {
         }
     });
 }
+
+// 清理学习模块
+export function clearLearningMode() {
+    const gameSection = document.getElementById("game-section");
+    const feedbackSection = document.getElementById("feedback-section");
+
+    // 清空当前模块的内容，避免干扰其他模块
+    gameSection.innerHTML = "";
+    feedbackSection.innerHTML = "";
+}
+
