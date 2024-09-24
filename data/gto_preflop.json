@@ -1,0 +1,23 @@
+{
+  "AA": {
+    "position": "any",
+    "action": "raise",
+    "next": {
+      "response": ["call", "3-bet"]
+    }
+  },
+  "KK": {
+    "position": "any",
+    "action": "raise",
+    "next": {
+      "response": ["call", "3-bet"]
+    }
+  },
+  "AKs": {
+    "position": "late",
+    "action": "raise",
+    "next": {
+      "response": ["call", "3-bet"]
+    }
+  }
+}
