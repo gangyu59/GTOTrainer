@@ -34,3 +34,52 @@ button:hover {
     text-align: left; /* 确保内容左对齐，而不是居中 */
     margin-top: 20px; /* 添加一些空间，确保与其他部分不重叠 */
 }
+
+#training-section {
+    margin: 20px;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.form-group label {
+    flex: 1;
+    font-size: 16px;
+    white-space: nowrap; /* 确保标签在一行内显示 */
+    margin-right: 10px;
+}
+
+.form-group input,
+.form-group select {
+    flex: 2;
+    padding: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+    text-align: center; /* 输入框和选择框内容居中 */
+}
+
+#bet-size-value {
+    margin-left: 10px;
+    font-size: 16px;
+}
+
+#submit-action {
+    width: auto; /* 自动宽度，匹配上面的按钮 */
+    padding: 10px 20px; /* 适当调整内边距 */
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 15px; /* 减少与上面的间距 */
+}
+
+#submit-action:hover {
+    background-color: #0056b3;
+}
+
