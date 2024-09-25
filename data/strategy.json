@@ -1,0 +1,168 @@
+{
+  "AA": {
+    "position": "any",
+    "action": "raise",
+    "next": {
+      "response": [
+        {
+          "action": "call",
+          "probability": 0.7,
+          "next": {
+            "response": ["bet", "check"]
+          }
+        },
+        {
+          "action": "3-bet",
+          "probability": 0.3,
+          "next": {
+            "response": ["call", "fold"]
+          }
+        }
+      ]
+    }
+  },
+  "KK": {
+    "position": "any",
+    "action": "raise",
+    "next": {
+      "response": [
+        {
+          "action": "call",
+          "probability": 0.65,
+          "next": {
+            "response": ["bet", "check"]
+          }
+        },
+        {
+          "action": "3-bet",
+          "probability": 0.35,
+          "next": {
+            "response": ["call", "fold"]
+          }
+        }
+      ]
+    }
+  },
+  "QQ": {
+    "position": "early",
+    "action": "raise",
+    "next": {
+      "response": [
+        {
+          "action": "call",
+          "probability": 0.6,
+          "next": {
+            "response": ["bet", "check"]
+          }
+        },
+        {
+          "action": "3-bet",
+          "probability": 0.4,
+          "next": {
+            "response": ["call", "fold"]
+          }
+        }
+      ]
+    }
+  },
+  "AKs": {
+    "position": "late",
+    "action": "raise",
+    "next": {
+      "response": [
+        {
+          "action": "call",
+          "probability": 0.55,
+          "next": {
+            "response": ["bet", "check"]
+          }
+        },
+        {
+          "action": "3-bet",
+          "probability": 0.45,
+          "next": {
+            "response": ["call", "fold"]
+          }
+        }
+      ]
+    }
+  },
+  "AQo": {
+    "position": "middle",
+    "action": "raise",
+    "next": {
+      "response": [
+        {
+          "action": "call",
+          "probability": 0.5,
+          "next": {
+            "response": ["bet", "check"]
+          }
+        },
+        {
+          "action": "fold",
+          "probability": 0.5,
+          "next": {
+            "response": ["bet", "check"]
+          }
+        }
+      ]
+    }
+  },
+  "AJs": {
+    "position": "middle",
+    "action": "raise",
+    "next": {
+      "response": [
+        {
+          "action": "call",
+          "probability": 0.6,
+          "next": {
+            "response": ["bet", "check"]
+          }
+        },
+        {
+          "action": "fold",
+          "probability": 0.4,
+          "next": {
+            "response": ["bet", "check"]
+          }
+        }
+      ]
+    }
+  },
+  "KQs": {
+    "position": "late",
+    "action": "call",
+    "next": {
+      "response": [
+        {
+          "action": "raise",
+          "probability": 0.4,
+          "next": {
+            "response": ["call", "fold"]
+          }
+        },
+        {
+          "action": "fold",
+          "probability": 0.6,
+          "next": {
+            "response": ["call"]
+          }
+        }
+      ]
+    }
+  },
+  "22-99": {
+    "position": "early",
+    "action": "fold",
+    "next": {
+      "response": [
+        {
+          "action": "call",
+          "probability": 1.0
+        }
+      ]
+    }
+  }
+}
