@@ -1,15 +1,14 @@
-// 开始训练模式
 export async function startTrainingMode() {
-    console.log("开始训练模式");
+//    console.log("开始训练模式");
 
-    const gameSection = document.getElementById("game-section");
+    const gameSection = document.getElementById("training-section");
     const feedbackSection = document.getElementById("feedback-section");
 
     // 清空当前内容
     gameSection.innerHTML = "";
     feedbackSection.innerHTML = "";
 
-    console.log("正在加载 GTO 数据...");
+//    console.log("正在加载 GTO 数据...");
     const gtoData = await loadGTOData();
 
     if (!gtoData) {
@@ -17,50 +16,106 @@ export async function startTrainingMode() {
         return;
     }
 
-    // 创建输入界面
-    gameSection.innerHTML = `
-        <h2>训练模式</h2>
-        <label for="position">选择你的位置：</label>
-        <select id="position">
-            <option value="early">早期位置</option>
-            <option value="middle">中期位置</option>
-            <option value="late">后卫位置</option>
-        </select>
-        <br><br>
-        <label for="user-action">输入你的行动：</label>
-        <input type="text" id="user-action" placeholder="例如：AA, KK, AKs"/>
-        <br><br>
-        <button id="submit-action">提交行动</button>
-    `;
+    // 动态生成输入界面
+    const formGroupPosition = document.createElement("div");
+    formGroupPosition.classList.add("form-group");
 
-    console.log("输入界面已创建");
+    const positionLabel = document.createElement("label");
+    positionLabel.setAttribute("for", "position");
+    positionLabel.innerText = "你的位置：";
+    formGroupPosition.appendChild(positionLabel);
 
-    // 在创建界面后，立即尝试找到提交按钮
-    const submitButton = document.getElementById("submit-action");
+    const positionSelect = document.createElement("select");
+    positionSelect.id = "position";
+    const options = ["early", "middle", "late"];
+    options.forEach(optionValue => {
+        const option = document.createElement("option");
+        option.value = optionValue;
+        option.innerText = optionValue === "early" ? "前位" : (optionValue === "middle" ? "中位" : "后位");
+        positionSelect.appendChild(option);
+    });
+    formGroupPosition.appendChild(positionSelect);
+    gameSection.appendChild(formGroupPosition);
 
-    if (!submitButton) {
-        console.error("提交按钮未找到，无法绑定事件");
-        return;
-    } else {
-        console.log("成功找到提交按钮，准备绑定事件");
-    }
+    // 动态生成输入框
+    const formGroupUserAction = document.createElement("div");
+    formGroupUserAction.classList.add("form-group");
 
-    // 添加事件监听器
-    submitButton.addEventListener("click", () => {
-        console.log("点击了提交按钮");
-        const userAction = document.getElementById("user-action").value.trim();
-        console.log(`提交的手牌: ${userAction}`);
+    const userActionLabel = document.createElement("label");
+    userActionLabel.setAttribute("for", "user-action");
+    userActionLabel.innerText = "输入手牌：";
+    formGroupUserAction.appendChild(userActionLabel);
 
-        if (!userAction) {
-            feedbackSection.innerHTML = "<p>请输入有效的手牌。</p>";
-            return;
-        }
+    const userActionInput = document.createElement("input");
+    userActionInput.id = "user-action";
+    userActionInput.placeholder = "例如：AA, KK, AKs, AQo, ...";
+    formGroupUserAction.appendChild(userActionInput);
+    gameSection.appendChild(formGroupUserAction);
 
-        // 处理用户输入
-        processUserAction(userAction, gtoData);
+    // 动态生成下注大小的输入框和范围显示
+    const formGroupBetSize = document.createElement("div");
+    formGroupBetSize.classList.add("form-group");
+
+    const betSizeLabel = document.createElement("label");
+    betSizeLabel.setAttribute("for", "bet-size");
+    betSizeLabel.innerText = "下注大小：";
+    formGroupBetSize.appendChild(betSizeLabel);
+
+    const betSizeInput = document.createElement("input");
+    betSizeInput.id = "bet-size";
+    betSizeInput.type = "range";
+    betSizeInput.min = "1";
+    betSizeInput.max = "10";
+    betSizeInput.value = "5";
+    formGroupBetSize.appendChild(betSizeInput);
+
+    const betSizeValue = document.createElement("span");
+    betSizeValue.id = "bet-size-value";
+    betSizeValue.innerText = "5 BB";
+    formGroupBetSize.appendChild(betSizeValue);
+    gameSection.appendChild(formGroupBetSize);
+
+    // 更新下注大小的显示
+    betSizeInput.addEventListener("input", () => {
+        betSizeValue.textContent = `${betSizeInput.value} BB`;
     });
 
-    console.log("提交按钮事件已绑定");
+    // 动态生成提交按钮
+    const submitButton = document.createElement("button");
+    submitButton.id = "submit-action";
+    submitButton.type = "button";
+    submitButton.innerText = "提交";
+    gameSection.appendChild(submitButton);
+
+    // 提交按钮事件绑定
+    submitButton.addEventListener("click", handleSubmit);
+
+//    console.log("训练模式界面已加载，按钮事件已绑定");
+}
+
+// 提交处理函数
+function handleSubmit(event) {
+//    console.log("进入提交处理函数");
+		event.preventDefault();  // 确保阻止默认行为
+//    console.log("点击了提交按钮");
+
+    const userAction = document.getElementById("user-action").value.trim();
+    const feedbackSection = document.getElementById("feedback-section");
+
+//    console.log(`提交的手牌: ${userAction}`);
+
+    if (!userAction) {
+        feedbackSection.innerHTML = "<p>请输入有效的手牌。</p>";
+        return;
+    }
+
+    // 处理用户输入并加载 GTO 数据
+    loadGTOData().then(gtoData => {
+        processUserAction(userAction, gtoData);
+    }).catch(error => {
+        console.error("处理数据时出错：", error);
+        feedbackSection.innerHTML = "<p>数据加载错误，请稍后再试。</p>";
+    });
 }
 
 // 加载GTO策略数据
@@ -72,7 +127,7 @@ async function loadGTOData() {
         }
 
         const data = await response.json();
-        console.log("成功加载 GTO 数据", data);
+//        console.log("成功加载 GTO 数据", data);
         return data;
     } catch (error) {
         console.error("加载GTO数据时出错：", error);
@@ -83,20 +138,11 @@ async function loadGTOData() {
 // 处理用户输入并给出建议
 function processUserAction(userAction, gtoData) {
     const feedbackSection = document.getElementById("feedback-section");
-    console.log("正在处理用户输入:", userAction);
+//    console.log("正在处理用户输入:", userAction);
 
-    if (gtoData) {
-        console.log("GTO 数据:", gtoData);
-    } else {
-        console.error("GTO 数据为空，无法处理用户输入");
-        feedbackSection.innerHTML = "<p>数据加载错误，请稍后再试。</p>";
-        return;
-    }
-
-    // 查找手牌数据
     if (gtoData[userAction]) {
         const action = gtoData[userAction].action;
-        console.log(`GTO建议: ${action}`);
+//        console.log(`GTO建议: ${action}`);
         feedbackSection.innerHTML = `<p>GTO建议: ${action}</p>`;
         showNextActions(gtoData[userAction].next);
     } else {
@@ -110,7 +156,6 @@ function showNextActions(next) {
     const feedbackSection = document.getElementById("feedback-section");
     let responsesHTML = "";
 
-    // 如果有后续行动，显示对手的反应和可能的后续行动
     if (next && next.response) {
         next.response.forEach(response => {
             responsesHTML += `<p>对手反应: ${response.action} (概率: ${response.probability})</p>`;
@@ -134,5 +179,5 @@ export function clearTrainingMode() {
     // 清空所有动态生成的内容
     gameSection.innerHTML = "";
     feedbackSection.innerHTML = "";
-    console.log("清理训练模式内容");
+//    console.log("清理训练模式内容");
 }
