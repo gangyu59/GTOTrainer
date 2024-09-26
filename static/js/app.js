@@ -1,7 +1,15 @@
 import { startTrainingMode, clearTrainingMode } from './training.js';
-// 假设也有类似的模块，如 startLearningMode 和 startSimulationMode
 import { startLearningMode } from './learning.js';
 import { startSimulationMode, clearSimulationMode } from './simulation.js';
+import { GTOCalculator } from './GTOCalculator.js';
+
+// 创建并初始化 GTO 计算器实例
+const gtoCalculator = new GTOCalculator();
+gtoCalculator.initialize();  // 初始化并缓存所有策略
+
+export { gtoCalculator };  // 导出 gtoCalculator 实例
+
+//console.log("GTO计算器已初始化，策略已缓存");
 
 document.addEventListener("DOMContentLoaded", () => {
     const learningSection = document.getElementById("learning-section");
@@ -35,10 +43,16 @@ document.addEventListener("DOMContentLoaded", () => {
         startSimulationMode();
     });
 
-    // 更新下注大小的实时显示
-    const betSizeInput = document.getElementById("bet-size");
-    const betSizeValue = document.getElementById("bet-size-value");
-    betSizeInput.addEventListener("input", () => {
-        betSizeValue.textContent = `${betSizeInput.value} BB`;
-    });
+	document.addEventListener("DOMContentLoaded", () => {
+	    const betSizeInput = document.getElementById("bet-size");
+	    if (betSizeInput) {
+	        betSizeInput.addEventListener("input", () => {
+	            const betSizeValue = document.getElementById("bet-size-value");
+	            betSizeValue.textContent = `${betSizeInput.value} BB`;
+	        });
+	    } else {
+	        console.error("找不到 betSizeInput 元素");
+	    }
+	});
+
 });

@@ -1,4 +1,4 @@
-class GTOCalculator {
+export class GTOCalculator {
     constructor() {
         this.strategyCache = {}; // 内存缓存
         this.opponentTypes = ["TAG", "LAG", "TP", "LP"]; // 对手类型：紧凶(Tight Aggressive)，松凶(Loose Aggressive)，紧弱(Tight Passive)，松弱(Loose Passive)
@@ -10,13 +10,14 @@ class GTOCalculator {
         const positions = ["early", "middle", "late"];
         const stackSizes = [100, 200, 300]; // 示例不同筹码量
         const rounds = ["pre-flop", "flop", "turn", "river"];
+        const opponentTypes = this.opponentTypes;
 
         // 遍历所有手牌范围、位置、筹码量、轮次和对手类型，推导策略
         for (const hand of handRanges) {
             for (const position of positions) {
                 for (const stackSize of stackSizes) {
                     for (const round of rounds) {
-                        for (const opponentType of this.opponentTypes) {
+                        for (const opponentType of opponentTypes) {
                             const strategy = this.calculateStrategy(hand, position, stackSize, round, opponentType);
                             this.cacheStrategy(hand, position, stackSize, round, opponentType, strategy);
                         }
@@ -24,11 +25,17 @@ class GTOCalculator {
                 }
             }
         }
+
+        console.log("策略初始化完成，已缓存所有策略");
     }
 
     // 获取手牌范围（可以根据具体需求扩展）
     getHandRanges() {
-        return ["AA", "KK", "QQ", "AKs", "AQo", "22-99"]; // 示例手牌范围
+        return [
+            "AA", "KK", "QQ", "JJ", "TT", "99", "88", "77", "66", "55", "44", "33", "22",
+            "AKs", "AQs", "AJs", "ATs", "KQs", "QJs", "JTs",  // suited hands
+            "AKo", "AQo", "AJo", "KQo", "QJo", "JTo", "T9o"  // offsuit hands
+        ];
     }
 
     // 计算给定手牌、位置、筹码量、轮次和对手类型的策略
@@ -61,7 +68,7 @@ class GTOCalculator {
         return { round, actions: this.getPostFlopActions(hand, stackSize, round, opponentType) };
     }
 
-    // 示例：根据不同对手类型调整策略
+    // 示例：根据不同对手类型调整策略 - 早期位置
     getEarlyPositionStrategy(hand, stackSize, opponentType) {
         if (hand === "AA" || hand === "KK") {
             return [{ action: "raise", probability: 1.0 }];
@@ -74,6 +81,42 @@ class GTOCalculator {
             return [{ action: "raise", probability: 0.6 }, { action: "call", probability: 0.4 }];
         } else if (opponentType === "TP") { // 面对紧弱型对手
             return [{ action: "raise", probability: 0.7 }, { action: "call", probability: 0.3 }];
+        } else { // 面对松弱型对手 (LP)
+            return [{ action: "raise", probability: 0.9 }, { action: "call", probability: 0.1 }];
+        }
+    }
+
+    // 示例：根据不同对手类型调整策略 - 中期位置
+    getMiddlePositionStrategy(hand, stackSize, opponentType) {
+        if (hand === "AA" || hand === "KK" || hand === "QQ") {
+            return [{ action: "raise", probability: 0.9 }, { action: "call", probability: 0.1 }];
+        }
+
+        // 针对不同的对手类型调整策略
+        if (opponentType === "TAG") { // 面对紧凶型对手
+            return [{ action: "raise", probability: 0.7 }, { action: "call", probability: 0.3 }];
+        } else if (opponentType === "LAG") { // 面对松凶型对手
+            return [{ action: "raise", probability: 0.5 }, { action: "call", probability: 0.5 }];
+        } else if (opponentType === "TP") { // 面对紧弱型对手
+            return [{ action: "raise", probability: 0.6 }, { action: "call", probability: 0.4 }];
+        } else { // 面对松弱型对手 (LP)
+            return [{ action: "raise", probability: 0.85 }, { action: "call", probability: 0.15 }];
+        }
+    }
+
+    // 示例：根据不同对手类型调整策略 - 后期位置
+    getLatePositionStrategy(hand, stackSize, opponentType) {
+        if (hand === "AA" || hand === "KK" || hand === "AKs") {
+            return [{ action: "raise", probability: 0.85 }, { action: "call", probability: 0.15 }];
+        }
+
+        // 针对不同的对手类型调整策略
+        if (opponentType === "TAG") { // 面对紧凶型对手
+            return [{ action: "raise", probability: 0.65 }, { action: "call", probability: 0.35 }];
+        } else if (opponentType === "LAG") { // 面对松凶型对手
+            return [{ action: "raise", probability: 0.55 }, { action: "call", probability: 0.45 }];
+        } else if (opponentType === "TP") { // 面对紧弱型对手
+            return [{ action: "raise", probability: 0.75 }, { action: "call", probability: 0.25 }];
         } else { // 面对松弱型对手 (LP)
             return [{ action: "raise", probability: 0.9 }, { action: "call", probability: 0.1 }];
         }
@@ -109,27 +152,19 @@ class GTOCalculator {
     cacheStrategy(hand, position, stackSize, round, opponentType, strategy) {
         const key = `${hand}-${position}-${stackSize}-${round}-${opponentType}`;
         this.strategyCache[key] = strategy;
-
-        // 如果你想持久化，可以使用 localStorage
-        localStorage.setItem(key, JSON.stringify(strategy));
+//        console.log(`策略已缓存，键为: ${key}`);
     }
 
     // 从缓存中获取策略
     getCachedStrategy(hand, position, stackSize, round, opponentType) {
         const key = `${hand}-${position}-${stackSize}-${round}-${opponentType}`;
+ //       console.log("正在查找策略，生成的键为: ", key);
+
         if (this.strategyCache[key]) {
             return this.strategyCache[key];
+        } else {
+            console.error("未找到该手牌的策略，缓存中不存在该键: ", key);
+            return null;
         }
-
-        // 如果需要从localStorage获取
-        const cached = localStorage.getItem(key);
-        return cached ? JSON.parse(cached) : null;
     }
 }
-
-// 创建GTO计算器实例
-const gtoCalculator = new GTOCalculator();
-gtoCalculator.initialize();
-
-// 示例：获取某手牌针对紧凶型对手的策略
-console.log(gtoCalculator.getCachedStrategy("AA", "early", 100, "pre-flop", "TAG"));
