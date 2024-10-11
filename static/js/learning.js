@@ -61,7 +61,7 @@ export function startLearningMode() {
 
     // 课程范围设置
     let currentLesson = 1; // 默认从第 1 课开始
-    const numberOfLessons = 20; // 假设有 20 节课
+    const numberOfLessons = 111; // 假设有 21 节课
 
     // 加载初始课程
     loadLesson(currentLesson);
@@ -79,6 +79,47 @@ export function startLearningMode() {
         if (currentLesson < numberOfLessons) {
             currentLesson++;
             loadLesson(currentLesson);
+        }
+    });
+		
+		// 触摸滑动事件，确保整个 feedbackSection 都可以响应
+    let startX = null; // 确保初始为 null
+    let endX = null;
+
+    // 将触摸事件绑定到 feedbackSection，确保它覆盖整个课程显示区域
+    feedbackSection.addEventListener("touchstart", (e) => {
+        if (e.touches.length === 1) {  // 确保是单指操作
+            startX = e.touches[0].clientX;
+        }
+    });
+
+    feedbackSection.addEventListener("touchend", (e) => {
+        if (e.changedTouches.length === 1) {  // 确保是单指操作
+            endX = e.changedTouches[0].clientX;
+            const diffX = startX - endX;
+
+  
+            // 滑动检测阈值
+            const swipeThreshold = 50;
+
+            // 判断滑动方向
+            if (diffX > swipeThreshold) {
+                // 向左滑动，下一课
+                if (currentLesson < numberOfLessons) {
+                    currentLesson++;
+                    loadLesson(currentLesson);
+                }
+            } else if (diffX < -swipeThreshold) {
+                // 向右滑动，上一课
+                if (currentLesson > 1) {
+                    currentLesson--;
+                    loadLesson(currentLesson);
+                }
+            }
+
+            // 重置 startX 和 endX，准备下次触摸
+            startX = null;
+            endX = null;
         }
     });
 }
