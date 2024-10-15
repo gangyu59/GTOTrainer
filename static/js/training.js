@@ -1,4 +1,5 @@
-import { gtoCalculator } from './app.js';  // 从 app.js 导入 gtoCalculator
+import { gtoCalculator } from './app.js';
+import { generateRangeChart } from './generateChart.js';
 
 export async function startTrainingMode() {
     const gameSection = document.getElementById("training-section");
@@ -113,6 +114,16 @@ export async function startTrainingMode() {
     formGroupOpponentType.appendChild(opponentSelect);
     gameSection.appendChild(formGroupOpponentType);
 
+		// 动态生成范围图按钮
+		const rangeChartButton = document.createElement("button");
+		rangeChartButton.id = "show-range-chart";
+		rangeChartButton.type = "button";
+		rangeChartButton.innerText = "范围图";
+		gameSection.appendChild(rangeChartButton);
+		
+    // 范围图按钮事件绑定
+    rangeChartButton.addEventListener("click", handleRangeChart);
+
     // 动态生成提交按钮
     const submitButton = document.createElement("button");
     submitButton.id = "submit-action";
@@ -201,4 +212,92 @@ export function clearTrainingMode() {
     // 清空所有动态生成的内容
     gameSection.innerHTML = "";
     feedbackSection.innerHTML = "";
+}
+
+function handleRangeChart(event) {
+    event.preventDefault();  // 阻止默认行为
+
+    const position = document.getElementById("position").value;
+//		console.log("position: ",position);
+    const round = document.getElementById("round").value;
+    const opponentType = document.getElementById("opponent-type").value;
+
+    const positionMapping = {
+        "前位（early）": "early",
+        "中位（middle）": "middle",
+        "后位（late）": "late"
+    };
+		
+    const roundMapping = {
+        "翻前（pre-flop）": "pre-flop",
+        "翻后（flop）": "flop",
+        "转牌（turn）": "turn",
+        "河牌（river）": "river"
+    };
+
+    const opponentMapping = {
+        "紧凶（TAG）": "TAG",
+        "松凶（LAG）": "LAG",
+        "紧弱（TP）": "TP",
+        "松弱（LP）": "LP"
+    };
+
+    // 获取映射后的值
+    const mappedPosition = position; 
+    const mappedRound = roundMapping[round];
+    const mappedOpponentType = opponentMapping[opponentType];
+
+    // 获取范围图数据
+    const rangeChartData = getRangeChartData(mappedPosition, mappedRound, mappedOpponentType);
+
+    // 清空反馈区域并显示范围图
+    const feedbackSection = document.getElementById("feedback-section");
+    feedbackSection.innerHTML = "";
+
+    if (rangeChartData.length > 0) {
+        const table = document.createElement("table");
+        table.classList.add("range-chart-table");
+
+        const headerRow = document.createElement("tr");
+        headerRow.innerHTML = "<th>手牌</th><th>行动</th><th>概率</th>";
+        table.appendChild(headerRow);
+
+        rangeChartData.forEach(row => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${row.hand}</td><td>${row.action}</td><td>${(row.probability * 100).toFixed(2)}%</td>`;
+            table.appendChild(tr);
+        });
+
+        feedbackSection.appendChild(table);
+    } else {
+        feedbackSection.innerHTML = "<p>未找到符合条件的范围图。</p>";
+    }
+}
+
+// 实现 getRangeChartData 函数，获取范围图数据
+function getRangeChartData(position, round, opponentType) {
+    // 使用已实例化并初始化的 gtoCalculator
+    const handRanges = gtoCalculator.getHandRanges();  // 获取手牌范围
+
+    // 假设使用100BB作为默认筹码量
+    const stackSize = 100;
+
+    const rangeChartData = [];
+
+    // 遍历手牌范围并获取策略
+    for (const hand of handRanges) {
+        const strategy = gtoCalculator.getCachedStrategy(hand, position, stackSize, round, opponentType);
+
+        if (strategy && strategy.actions) {
+            strategy.actions.forEach(actionObj => {
+                rangeChartData.push({
+                    hand: hand,
+                    action: actionObj.action,
+                    probability: actionObj.probability
+                });
+            });
+        }
+    }
+
+    return rangeChartData;
 }
